@@ -1,0 +1,24 @@
+,value
+le_2000_Developed,76.8
+le_2015_Developed,80.7
+gain_Developed,3.9
+cagr_pct_Developed,0.33
+le_2000_Developing,64.6
+le_2015_Developing,69.7
+gain_Developing,5.1
+cagr_pct_Developing,0.5
+le_2000_all,66.8
+le_2015_all,71.6
+gap_2015_years,11.0
+gap_ttest_p,7.09e-23
+gap_95ci,"[9.3, 12.7]"
+ols_test_r2,0.84
+ols_test_rmse_years,3.7
+max_vif,4.5
+strongest_negative,hiv_aids (beta=-2.58)
+strongest_positive,log_gdp_pc (beta=2.60)
+rf_test_r2,0.96
+rf_top3,"hiv_aids, health_exp_pc, adult_mortality"
+silhouette_by_k,"{2: 0.4, 3: 0.37, 4: 0.37, 5: 0.39, 6: 0.3, 7: 0.3}"
+k_used,4
+silhouette_k_used,0.37
