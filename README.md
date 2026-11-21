@@ -46,7 +46,7 @@ Run it from the repository root. Results are written to `docs/` and charts to `v
 Cluster numbering and sizes can vary slightly between library versions.
 
 ## Reports
-- [Week 1 project plan](docs/Week1_Project_Plan.md)
+- [Week 1 project plan](docs/Week1_Project_Plan.docx)
 - [Week 2 data extraction, cleaning and integration](docs/Week2_Data_Extraction_Cleaning_Integration.docx)
 - [Week 3 analysis and visualization plan](docs/Week3_Data_Analysis_and_Visualization_Plan.docx)
 - [Week 4 final report and recommendations](docs/Week4_Final_Evaluation_Report.docx)
