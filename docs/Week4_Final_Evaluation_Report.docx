@@ -1,0 +1,155 @@
+Week 4 Report
+Insight Evaluation and Strategic Recommendations
+Final report: from integrated healthcare data to actionable strategy
+Prepared by: Priya Kailas Rakshe  |  B.Tech Bioengineering, MIT-ADT University  |  Healthcare Data Analyst Intern
+Executive Summary
+This report evaluates what an integrated analysis of WHO, UN and World Bank data reveals about the drivers of national life expectancy (183 countries after cleaning, 2000-2015, 2,928 country-year observations) and converts those insights into five strategic recommendations for a hypothetical national health improvement programme.
+Key insights
+•Progress is real but unequal. Mean life expectancy rose from 66.8 to 71.6 years (+4.8). Developing countries gained 5.1 years against 3.9 years for developed countries, so the gap narrowed from 12.2 to 11.0 years, but it remains large and statistically significant (95% CI 9.3-12.7 years).
+•HIV/AIDS is the strongest negative factor and national income the strongest positive one. In the regression model (test R-squared 0.84), one standard deviation more HIV/AIDS burden is associated with 2.6 fewer years of life expectancy, and one standard deviation higher log GDP per capita with 2.6 more years. A random forest ranked HIV/AIDS, health spending and adult mortality as the top three predictors.
+•Countries fall into four distinct profiles. The two poorest-performing groups have similar life expectancy (62.7-64.0 years) and low health spending (about US$99-118 per person), but one of them has immunisation coverage of only 35-42% compared with 86% in the other.
+•Prevention and early adult health are the clearest gaps. Adult mortality is about four times higher in the high-burden groups (224-242 per 1,000) than in the high-performing group (61 per 1,000).
+Strategic recommendations
+1.Prioritise HIV/AIDS prevention and treatment in high-burden settings.
+2.Close the immunisation gap in the lowest-coverage group (polio 35%, diphtheria 42%) with a target of 90% coverage.
+3.Reduce premature adult mortality through screening, chronic-disease care and injury services.
+4.Strengthen health financing and its efficiency, because income and health spending are among the strongest correlates of longer life.
+5.Differentiate investment by country profile and link health with education policy.
+1. Introduction
+Healthcare decision-makers must decide where limited resources will save the most life-years. This project asked three questions: how has life expectancy changed and is the gap between developed and developing countries closing (RQ1); which factors are most associated with life expectancy (RQ2); and which countries share similar health profiles (RQ3). Over four weeks I planned the project (Week 1), built an integrated dataset (Week 2) and designed the analytical framework (Week 3). This final report applies that framework, evaluates the findings and links them to actions.
+Scope and audience. The report is written for a hypothetical national health planning team. Recommendations are strategic and evidence-informed; they are not clinical advice.
+2. Methodology Summary
+Stage	What was done	Result
+Data gathering	WHO/UN life expectancy panel (2,938 rows x 22 columns); World Bank WDI indicators through the API (health expenditure, physicians, hospital beds, population aged 65+, GDP per capita, population)	Join key: ISO3 country code + year
+Cleaning	Removed rows without life expectancy or adult mortality; within-country interpolation; group medians; plausibility rules for BMI; imputation flags	2,938 rows reduced to 2,928
+Integration	Left join of World Bank data onto the primary table; aggregates excluded	99.0% of rows matched
+Analysis	Trend analysis and Welch t-test; OLS regression (80/20 train-test split, VIF check); random forest (300 trees); K-means (k = 4) with silhouette validation and PCA	Test R-squared 0.84; maximum VIF 4.5; silhouette 0.37
+Visualisation	Bar and profile charts with colour-blind-safe colours; additional figures produced by the pipeline script	See Figures 2 and 3
+
+
+Figure 1. Data pipeline from raw sources to the analysis-ready dataset.
+3. Findings and Insight Evaluation
+3.1 Summary of key results
+Metric	Result	Meaning
+Mean life expectancy 2000 / 2015 (all countries)	66.8 / 71.6 years (+4.8)	Global progress over 15 years
+Developing countries 2000 / 2015	64.6 / 69.7 years (+5.1; 0.50% per year)	Faster improvement from a lower base
+Developed countries 2000 / 2015	76.8 / 80.7 years (+3.9; 0.33% per year)	Slower improvement from a high base
+Gap between groups, 2015 (Welch t-test)	11.0 years; p < 0.001; 95% CI [9.3, 12.7]	Narrowed from 12.2 years in 2000, still significant
+Regression performance (test set)	R-squared 0.84; RMSE 3.7 years	Model explains most of the variation
+Multicollinearity check	Maximum VIF 4.5 (limit 5)	Coefficients are interpretable
+Strongest negative predictor (OLS)	HIV/AIDS (-2.58 years per 1 SD)	Largest burden on life expectancy
+Strongest positive predictor (OLS)	Log GDP per capita (+2.60 years per 1 SD)	Income and resources support longer life
+Random forest top three	HIV/AIDS, health expenditure per capita, adult mortality	Confirms HIV/AIDS; adds spending and adult mortality
+Clusters	k = 4; silhouette 0.37 (183 countries)	Clear, interpretable country profiles
+
+3.2 Finding 1: Life expectancy improved and the gap is narrowing, but remains large (RQ1)
+Mean life expectancy rose in both groups between 2000 and 2015. Developing countries gained 5.1 years, compared with 3.9 years for developed countries, which is consistent with catch-up from a lower baseline. The difference between the groups narrowed from 12.2 years to 11.0 years, yet the 2015 gap is still large and highly significant (Welch t-test, p < 0.001; 95% confidence interval 9.3 to 12.7 years). Because the gap narrowed by only about 1.2 years in 15 years, catch-up should not be assumed to be automatic.
+
+Figure 2. Mean life expectancy in 2000 and 2015 by country group (pipeline output).
+3.3 Finding 2: HIV/AIDS and national income are the strongest correlates (RQ2)
+The regression model explained a large share of the variation in unseen data (test R-squared 0.84, RMSE 3.7 years), and the variance inflation factors were all below 5, so the standardised coefficients can be compared. HIV/AIDS has the largest negative association (-2.58 years per standard deviation) and log GDP per capita the largest positive one (+2.60 years). The random forest, which can capture non-linear effects, also placed HIV/AIDS first and ranked health expenditure per capita and adult mortality second and third. The agreement of two different methods on HIV/AIDS makes this the most robust finding of the analysis.
+The random forest achieved a higher test R-squared (0.96) than the regression. This should be read with care: because each country appears in many years, a random train-test split can place the same country in both sets, which makes predictions look better than they would for entirely new countries. The regression figure is therefore the more conservative estimate, and a split by country is listed as further work.
+3.4 Finding 3: Four country profiles need different strategies (RQ3)
+K-means clustering on the latest observation for each of 183 countries produced four groups (silhouette score 0.37, above the 0.25 threshold set in the Week 3 plan; k = 4 was chosen because it gave the most interpretable groups, and its score is similar to k = 3 and k = 5).
+
+Figure 3. Profiles of the four country clusters (cluster means from the pipeline output).
+Cluster	No.	Life exp.	Profile	Policy implication
+A: High-performing	26	82.2	Adult mortality 61; schooling 16.8 years; immunisation about 95%; spending about US$4,470 per person	Maintain; focus on ageing and chronic disease
+B: Transitioning	83	75.5	Adult mortality 113; schooling 14.1; immunisation about 94%; spending about US$630	Invest in chronic-disease screening and primary care
+C: High burden	47	64.0	Adult mortality 224; schooling 10.3; immunisation 86%; spending about US$99	Raise financing and adult health services; protect existing coverage
+D: High burden, low immunisation	27	62.7	Adult mortality 242; schooling 10.7; polio 35% and diphtheria 42%; spending about US$118	Urgent immunisation drive and basic services
+
+Two points stand out. First, clusters C and D have almost the same life expectancy and spending, but D's immunisation coverage is less than half that of C, so D has a distinct, fixable problem that a single "low income" label would hide. Second, spending differs more than 40-fold between clusters A and C (about US$4,470 versus US$99 per person), which shows the scale of the resource gap.
+3.5 Data quality evaluation
+Integration was successful: 99.0% of country-year rows matched World Bank data, and only 10 of 2,938 rows (0.3%) had to be removed because life expectancy or adult mortality was missing. Remaining gaps in slow-moving indicators were filled by within-country interpolation and flagged, so a sensitivity analysis without imputed rows can be run from the saved flag columns. Using World Bank GDP and population in place of the incomplete original columns improved completeness.
+
+Figure 4. Process that connected the data analysis to the recommendations in this report.
+4. Critical Analysis: Linking Insights to Strategy
+The central lesson is that life expectancy depends on a combination of disease burden, economic resources and basic prevention, and that countries with similar life expectancy can have different underlying problems. Effective strategy therefore needs to be targeted, not uniform.
+Insight	Strategic implication	Evidence strength
+HIV/AIDS has the strongest negative association and ranks first in the random forest	Sustain prevention, testing and treatment where the burden is high	High: two methods agree
+Income (log GDP per capita) is the strongest positive association; health spending ranks second in the random forest	Protect and make better use of health budgets; efficiency matters as much as amount	Moderate to high (association)
+Adult mortality is about four times higher in high-burden clusters and ranks third in the random forest	Extend attention beyond child health to adult health	Moderate to high
+One high-burden cluster has immunisation of only 35-42%	Targeted immunisation drive with a measurable coverage target	High (large, clear difference)
+Schooling averages about 17 years in cluster A versus about 10 in clusters C and D	Coordinate health and education policy	Moderate (descriptive pattern, not isolated in the regression)
+
+Limits of the evidence
+•The analysis shows association, not causation; randomised or quasi-experimental evidence would be needed to prove that an intervention causes a gain.
+•Results describe countries, not individuals (ecological fallacy).
+•The data end in 2015; later events, including COVID-19, are not reflected, and the analysis should be re-run with newer data.
+•The HIV/AIDS indicator in the source dataset is, as documented for it, a child-mortality-based measure used as a proxy for national HIV burden, so it should not be read as prevalence.
+•Health spending is measured in current US$, which does not adjust for price differences between countries.
+•Clusters use each country's latest observation, and cluster labels depend on the chosen method and number of groups.
+•The random forest accuracy is probably optimistic because of the random split (see Section 3.3).
+•Country averages hide inequality within countries.
+5. Strategic Recommendations
+Each recommendation is linked to a finding, with anticipated benefits, challenges and measurable indicators. Targets are hypothetical and intended for a planning discussion.
+R1. Prioritise HIV/AIDS prevention and treatment
+Element	Detail
+Linked finding	Finding 2: strongest negative association in the regression and top-ranked predictor in the random forest
+Action	In high-burden settings, scale testing, antiretroviral treatment, prevention of mother-to-child transmission and adolescent prevention programmes; integrate them with primary care.
+Anticipated benefits	Largest expected life-year gain per intervention in affected countries; fewer new infections and child deaths.
+Challenges and risks	Stigma, long-term drug financing, reliance on external donors, supply-chain interruptions.
+Indicators / targets	At least 85% of diagnosed people on treatment; measurable fall in the national HIV/AIDS indicator within 5 years.
+
+R2. Close the immunisation gap in the lowest-coverage group
+Element	Detail
+Linked finding	Finding 3: cluster D has polio coverage of 35% and diphtheria 42%, against 94-95% in clusters A and B
+Action	Fund cold-chain logistics, outreach to unreached districts, community mobilisation and catch-up campaigns; track coverage on a dashboard with district alerts.
+Anticipated benefits	Prevents outbreaks, among the most cost-effective health measures, strengthens basic health contact.
+Challenges and risks	Insecurity and access barriers, vaccine hesitancy, shortage of health workers, funding competition.
+Indicators / targets	Coverage of at least 80% within 3 years and 90% within 5 years; no district below 70%.
+
+R3. Reduce premature adult mortality
+Element	Detail
+Linked finding	Findings 2 and 3: adult mortality ranks third in the random forest and is 224-242 per 1,000 in high-burden clusters versus 61 in cluster A
+Action	Community screening for hypertension and diabetes, emergency and injury care, primary-care training in chronic-disease management.
+Anticipated benefits	Fewer deaths between ages 15 and 60, with benefits for families and the workforce.
+Challenges and risks	Needs trained staff and drug supply; screening only helps when treatment follows; benefits appear over years.
+Indicators / targets	Adult mortality down 10% in 5 years; at least 70% of screened hypertensive patients under treatment.
+
+R4. Strengthen health financing and its efficiency
+Element	Detail
+Linked finding	Finding 2: log GDP per capita is the strongest positive predictor and health spending ranks second in the random forest; spending ranges from about US$99 to US$4,470 across clusters
+Action	Raise public health spending where it is lowest, prioritise primary care and prevention, and audit how money is used (supply chains, procurement, staffing).
+Anticipated benefits	More health gain per currency unit; transparent, accountable budgets.
+Challenges and risks	Limited fiscal space in low-income countries, governance weaknesses, risk of treating association as proof.
+Indicators / targets	Health spending per person tracked yearly; share spent on primary care rising; audit findings acted on.
+
+R5. Differentiate by country profile and link health with education
+Element	Detail
+Linked finding	Finding 3: clusters differ sharply; schooling averages about 17 years in cluster A versus about 10 in C and D
+Action	Use the four profiles to allocate funds: basic services and immunisation for D, financing and adult health for C, chronic-disease care for B, maintenance for A. Add school-based health education and keep girls in school.
+Anticipated benefits	Targeted resources; long-term gains from education; clear accountability by group.
+Challenges and risks	Cluster labels are method-dependent; data lag; cross-ministry coordination is slow; education effect is uncertain.
+Indicators / targets	Countries moving up a cluster over 5 years; improved secondary enrolment and health-literacy indicators.
+
+5.1 Prioritisation
+Recommendation	Expected impact	Feasibility	Time to effect	Priority
+R2 Immunisation gap	High	High	Short-medium	1 (quick win)
+R1 HIV/AIDS	High in affected countries	Medium	Medium	1 (core)
+R3 Adult mortality	High	Medium	Medium-long	2
+R5 Profile-based targeting	Medium-high	Medium	Short (planning)	2
+R4 Financing and efficiency	High but indirect	Medium-low	Long	3
+
+5.2 Implementation roadmap (12 months)
+Phase	Timing	Activities
+Prepare	Months 1-2	Confirm priorities, identify target districts, set baseline indicators, update the data with the latest WHO and World Bank releases
+Launch	Months 3-6	Start immunisation outreach and HIV/AIDS service scale-up; adult screening pilots; begin spending-efficiency audit
+Scale	Months 7-10	Extend successful pilots; link education and health activities; review the dashboard monthly
+Evaluate	Months 11-12	Compare indicators with baselines; adjust strategy; publish report
+
+6. Risks, Limitations and Further Work
+•Re-run the analysis with post-2015 data to test whether the relationships still hold.
+•Evaluate the models with a split by country (or leave-one-country-out validation) to give a realistic accuracy estimate for new countries.
+•Add district-level data to reveal inequality within countries.
+•Use causal methods (difference-in-differences, instrumental variables) where policy changes can be observed.
+•Include additional variables such as air pollution, sanitation, tobacco use and health-worker density.
+•Build a scenario model of life expectancy under different investment options.
+7. Conclusion
+Integrating three public data sources made it possible to move from raw tables to decision-ready insights. Life expectancy has improved (+4.8 years on average between 2000 and 2015) and developing countries are catching up (+5.1 versus +3.9 years), but an 11-year gap remains. HIV/AIDS is the strongest negative factor and national income the strongest positive one, with health spending and adult mortality also ranking high. Four country profiles show that countries with similar life expectancy can face very different problems, such as a collapse in immunisation coverage in one group. The five recommendations form a coherent, measurable strategy, and the pipeline built in Weeks 2 and 3 allows it to be refreshed whenever new data is released. Because the findings describe associations at country level, they should guide priorities and further testing and not be treated as proof of cause.
+Appendix A. Reproducibility and Sources
+•Code: healthcare_pipeline.py in the GitHub repository (extract, clean, integrate, analyse, export).
+•Outputs: data/processed/health_integrated.csv, reports/results_summary.csv, reports/cluster_profiles.csv, and figures in reports/figures/.
+•Data sources: WHO Global Health Observatory; World Bank World Development Indicators; Kaggle "Life Expectancy (WHO)" dataset compiled from WHO and UN data.
+•Software: Python (pandas, statsmodels, scikit-learn, seaborn, matplotlib).
